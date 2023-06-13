@@ -80,40 +80,6 @@ class Database extends Construct {
       securityGroups: [dbSecurityGroup],
     });
 
-    // const dbCluster = new DatabaseCluster(this, "DbCluster", {
-    //   engine: DatabaseClusterEngine.auroraPostgres({
-    //     version: AuroraPostgresEngineVersion.VER_14_5,
-    //   }),
-    //   instances: 1,
-
-    //   credentials: Credentials.fromPassword(
-    //     dbSecret.secretValueFromJson("username").unsafeUnwrap(),
-    //     dbSecret.secretValueFromJson("password")
-    //   ),
-    //   defaultDatabaseName: dbName,
-    //   instanceProps: {
-    //     vpc: vpc,
-    //     instanceType: new InstanceType("serverless"),
-    //     autoMinorVersionUpgrade: true,
-    //     securityGroups: [dbSecurityGroup],
-    //     vpcSubnets: vpc.selectSubnets({
-    //       subnetType: SubnetType.PRIVATE_ISOLATED,
-    //     }),
-    //   },
-    //   port: 5432,
-    // });
-
-    // Aspects.of(dbCluster).add({
-    //   visit(node) {
-    //     if (node instanceof CfnDBCluster) {
-    //       node.serverlessV2ScalingConfiguration = {
-    //         minCapacity: 0.5,
-    //         maxCapacity: 1,
-    //       };
-    //     }
-    //   },
-    // });
-
     const { lambdaFunction, lambdaSecurityGroup } = this.createMigrationLambda(
       applicationName,
       migrationDirectoryPath!,
