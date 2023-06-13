@@ -37,9 +37,9 @@ interface DatabaseProps {
 }
 
 class Database extends Construct {
-  constructor(scope: Construct, id: string, props?: DatabaseProps) {
+  constructor(scope: Construct, id: string, props: DatabaseProps) {
     super(scope, id);
-    const { vpc, applicationName } = props!;
+    const { vpc, applicationName, migrationDirectoryPath } = props!;
     const dbSecurityGroup = new SecurityGroup(this, "DBClusterSecurityGroup", {
       vpc,
     });
@@ -94,7 +94,7 @@ class Database extends Construct {
 
     const { lambdaFunction, lambdaSecurityGroup } = this.createMigrationLambda(
       applicationName,
-      props?.migrationDirectoryPath!,
+      migrationDirectoryPath!,
       vpc,
       dbSecret,
       dbCluster,
@@ -102,10 +102,11 @@ class Database extends Construct {
     );
 
     dbSecurityGroup.addIngressRule(lambdaSecurityGroup, Port.tcp(5432));
+
     this.createCustomResource(
       dbCluster,
       lambdaFunction,
-      props?.migrationDirectoryPath!
+      migrationDirectoryPath!
     );
   }
 
