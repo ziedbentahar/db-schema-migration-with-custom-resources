@@ -1,8 +1,7 @@
-import { Aspects, CustomResource, Duration } from "aws-cdk-lib";
+import { CustomResource, Duration } from "aws-cdk-lib";
 import {
   ISecurityGroup,
   IVpc,
-  InstanceType,
   Port,
   SecurityGroup,
   SubnetType,
@@ -18,7 +17,7 @@ import { Architecture, IFunction, Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import {
   AuroraPostgresEngineVersion,
-  CfnDBCluster,
+  ClusterInstance,
   Credentials,
   DatabaseCluster,
   DatabaseClusterEngine,
@@ -58,39 +57,62 @@ class Database extends Construct {
       },
     });
 
-    const dbCluster = new DatabaseCluster(this, "DbCluster", {
+    const dbCluster = new DatabaseCluster(this, "Database", {
       engine: DatabaseClusterEngine.auroraPostgres({
-        version: AuroraPostgresEngineVersion.VER_14_5,
+        version: AuroraPostgresEngineVersion.VER_14_7,
       }),
-      instances: 1,
-
+      defaultDatabaseName: dbName,
+      writer: ClusterInstance.serverlessV2("writer"),
+      serverlessV2MinCapacity: 0.5,
+      serverlessV2MaxCapacity: 1,
+      readers: [
+        ClusterInstance.serverlessV2("reader", { scaleWithWriter: true }),
+      ],
+      vpc,
+      vpcSubnets: vpc.selectSubnets({
+        subnetType: SubnetType.PRIVATE_ISOLATED,
+      }),
       credentials: Credentials.fromPassword(
         dbSecret.secretValueFromJson("username").unsafeUnwrap(),
         dbSecret.secretValueFromJson("password")
       ),
-      defaultDatabaseName: dbName,
-      instanceProps: {
-        vpc: vpc,
-        instanceType: new InstanceType("serverless"),
-        autoMinorVersionUpgrade: true,
-        securityGroups: [dbSecurityGroup],
-        vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_ISOLATED,
-        }),
-      },
       port: 5432,
+      securityGroups: [dbSecurityGroup],
     });
 
-    Aspects.of(dbCluster).add({
-      visit(node) {
-        if (node instanceof CfnDBCluster) {
-          node.serverlessV2ScalingConfiguration = {
-            minCapacity: 0.5,
-            maxCapacity: 1,
-          };
-        }
-      },
-    });
+    // const dbCluster = new DatabaseCluster(this, "DbCluster", {
+    //   engine: DatabaseClusterEngine.auroraPostgres({
+    //     version: AuroraPostgresEngineVersion.VER_14_5,
+    //   }),
+    //   instances: 1,
+
+    //   credentials: Credentials.fromPassword(
+    //     dbSecret.secretValueFromJson("username").unsafeUnwrap(),
+    //     dbSecret.secretValueFromJson("password")
+    //   ),
+    //   defaultDatabaseName: dbName,
+    //   instanceProps: {
+    //     vpc: vpc,
+    //     instanceType: new InstanceType("serverless"),
+    //     autoMinorVersionUpgrade: true,
+    //     securityGroups: [dbSecurityGroup],
+    //     vpcSubnets: vpc.selectSubnets({
+    //       subnetType: SubnetType.PRIVATE_ISOLATED,
+    //     }),
+    //   },
+    //   port: 5432,
+    // });
+
+    // Aspects.of(dbCluster).add({
+    //   visit(node) {
+    //     if (node instanceof CfnDBCluster) {
+    //       node.serverlessV2ScalingConfiguration = {
+    //         minCapacity: 0.5,
+    //         maxCapacity: 1,
+    //       };
+    //     }
+    //   },
+    // });
 
     const { lambdaFunction, lambdaSecurityGroup } = this.createMigrationLambda(
       applicationName,
