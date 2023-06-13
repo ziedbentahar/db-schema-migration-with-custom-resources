@@ -1,11 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
 import { Template, Match } from 'aws-cdk-lib/assertions';
-import * as ArticleDbSchemaMigration from '../lib/article-db-schema-migration-stack';
+import * as DbSchemaMigrationWithCustomResources from '../lib/db-schema-migration-with-custom-resources-stack';
 
 test('SQS Queue and SNS Topic Created', () => {
   const app = new cdk.App();
   // WHEN
-  const stack = new ArticleDbSchemaMigration.ArticleDbSchemaMigrationStack(app, 'MyTestStack');
+  const stack = new DbSchemaMigrationWithCustomResources.DbSchemaMigrationWithCustomResourcesStack(app, 'MyTestStack');
   // THEN
 
   const template = Template.fromStack(stack);

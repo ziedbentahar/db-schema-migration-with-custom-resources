@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/article-db-schema-migration.ts",
+  "app": "npx ts-node --prefer-ts-exts bin/db-schema-migration-with-custom-resources.ts",
   "watch": {
     "include": [
       "**"
