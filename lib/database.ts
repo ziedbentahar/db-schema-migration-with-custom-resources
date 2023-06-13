@@ -153,7 +153,7 @@ class Database extends Construct {
             beforeInstall: Noop,
             afterBundling: (_, outputDir: string) => {
               return [
-                `pwd && mkdir -p ${outputDir}/migrations && cp ${migrationDirectoryPath}/* ${outputDir}/migrations`,
+                `mkdir -p ${outputDir}/migrations && cp ${migrationDirectoryPath}/* ${outputDir}/migrations`,
               ];
             },
           },
