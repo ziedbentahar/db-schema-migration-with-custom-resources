@@ -7,4 +7,4 @@ Full code and Github actions workflow for this bog post:
 
 TODO
 
-![image](https://github.com/ziedbentahar/db-schema-migration-with-custom-resources/assets/6813975/ccd63c1e-326f-484f-89c1-14a83ef5fe6a)
+![image](https://github.com/ziedbentahar/db-schema-migration-with-custom-resources/assets/6813975/c39e19fd-e600-4dc0-a027-47ac358f098c)
